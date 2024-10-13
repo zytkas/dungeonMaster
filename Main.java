@@ -12,8 +12,11 @@
     private static final int MIN_ROOMS = 4;
     private static final String LEFT_MOVE = "left";
     private static final String RIGHT_MOVE = "right";
+    private static final String ENEMY_LOOPER = "looper";
+    private static final String ENEMY_ZIGZAGGER = "zigzagger";
     //Constant strings ...
-
+    private static final String playerStatus = "Player: level %d, room %d, treasures %d%n";
+    private static final String enemyStatus = "Level %d enemy: %s, room %d%n";
     //Constant variables
     private static char[] layoutDungeonLevel1;
     private static char[] layoutDungeonLevel2;
@@ -33,29 +36,14 @@
     private static int stairsPositionLevel1;
 
 
+
+
+
     public static void main() {
         Scanner scanner = new Scanner(System.in);
         readDungeon(scanner);
-
-        movementPlayer("right", 6);
-        movementZigzagger();
-        movementLooper();
-        enemyCollision();
-        gameStatus();
-
+        playDungeon(scanner);
         movementPlayer("right", 2);
-        movementZigzagger();
-        movementLooper();
-        enemyCollision();
-        gameStatus();
-
-        movementPlayer("right", 2);
-        movementZigzagger();
-        movementLooper();
-        enemyCollision();
-        gameStatus();
-
-        movementPlayer("right", 5);
         movementZigzagger();
         movementLooper();
         enemyCollision();
@@ -74,51 +62,40 @@
         layoutDungeonLevel1 = level1.toCharArray();
         layoutDungeonLevel2 = level2.toCharArray();
 
-        for (int i = 0; i < layoutDungeonLevel1.length; i++) {
-            switch (layoutDungeonLevel1[i]) {
-                case TREASURE:
-                    treasureCount++;
-                    break;
-                case PLAYER:
-                    playerPosition = i;
-                    playerLevel = 2;
-                    break;
-                case EXIT:
-                    exitPosition = i;
-                    break;
-                case LOOPER:
-                    looperPositionLevel2 = i;
-                    break;
-                case ZIGZAGER:
-                    zigzagerPositionLevel2 = i;
-                    break;
-                case STAIRS:
-                    stairsPositionLevel2 = i;
-            }
-        }
+        processDungeonLevel(layoutDungeonLevel1, 2);
+        processDungeonLevel(layoutDungeonLevel2, 1);
+    }
 
-        for (int i = 0; i < layoutDungeonLevel2.length; i++) {
-            switch (layoutDungeonLevel2[i]) {
+    private static void processDungeonLevel(char[] layout, int level) {
+        for (int i = 0; i < layout.length; i++) {
+            switch (layout[i]) {
+                case TREASURE:
+                    treasureCount++;
+                    break;
                 case PLAYER:
                     playerPosition = i;
-                    playerLevel = 1;
+                    playerLevel = level;
                     break;
                 case EXIT:
                     exitPosition = i;
                     break;
-                case TREASURE:
-                    treasureCount++;
-                    break;
                 case LOOPER:
-                    looperPositionLevel1= i;
+                    if (level == 1) looperPositionLevel1 = i;
+                    else looperPositionLevel2 = i;
                     break;
                 case ZIGZAGER:
-                    zigzagerPositionLevel1 = i;
+                    if (level == 1) zigzagerPositionLevel1 = i;
+                    else zigzagerPositionLevel2 = i;
                     break;
                 case STAIRS:
-                    stairsPositionLevel1 = i;
+                    if (level == 1) stairsPositionLevel1 = i;
+                    else stairsPositionLevel2 = i;
+                    break;
             }
         }
+    }
+    private static void playDungeon(Scanner scanner) {
+
     }
 
     private static void movementPlayer(String dir, int steps) {
@@ -149,7 +126,6 @@
 
     }
 
-
     private static void movementZigzagger() {
 
         if (zigzagerPositionLevel2 != -1) {
@@ -166,18 +142,19 @@
     }
 
     private static void gameStatus() {
-        System.out.println("Player: level " + playerLevel + ", room " + (playerPosition + 1) + ", treasures " + treasureCollected  + "/"+ treasureCount);
+        System.out.printf(playerStatus, playerLevel, playerPosition + 1, treasureCollected);
+
         if (looperPositionLevel1 != -1) {
-            System.out.println("Level 1 enemy: looper, room " + (looperPositionLevel1 + 1));
+            System.out.printf(enemyStatus, 1, ENEMY_LOOPER, looperPositionLevel1 + 1);
         }
         if (looperPositionLevel2 != -1) {
-            System.out.println("Level 2 enemy: looper, room " + (looperPositionLevel2 + 1));
+            System.out.printf(enemyStatus, 2, ENEMY_LOOPER, looperPositionLevel2 + 1);
         }
         if (zigzagerPositionLevel1 != -1) {
-            System.out.println("Level 1 enemy: zigzager, room " + (zigzagerPositionLevel1 + 1));
+            System.out.printf(enemyStatus, 1, ENEMY_ZIGZAGGER, zigzagerPositionLevel1 + 1);
         }
-        if (zigzagerPositionLevel1 != -1) {
-            System.out.println("Level 2 enemy: zigzager, room " + (zigzagerPositionLevel1 + 1));
+        if (zigzagerPositionLevel2 != -1) {
+            System.out.printf(enemyStatus, 2, ENEMY_ZIGZAGGER, zigzagerPositionLevel2 + 1);
         }
     }
 
@@ -203,9 +180,8 @@
 
     private static void enemyCollision(){
         if(zigzagerPositionLevel1 == playerPosition || zigzagerPositionLevel2 == playerPosition){
-            // to finish basically end of game
+            // function done. just return any statement or print game over
         }else if(looperPositionLevel1 == playerPosition || looperPositionLevel2 == playerPosition){
-           // to finish basically end of game
         }
     }
 

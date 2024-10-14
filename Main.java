@@ -45,7 +45,7 @@ public class Main {
 
     private static boolean gameOver = false;
 
-    //Initialising of game
+
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         readDungeon(in);
@@ -73,15 +73,13 @@ public class Main {
         for (int i = 0; i < layout.length; i++) {
             switch (layout[i]) {
                 case TREASURE:
-                    treasureCount++;
-                    break;
+                    treasureCount++; break;
                 case PLAYER:
                     playerPosition = i;
                     playerLevel = level;
                     break;
                 case EXIT:
-                    exitPosition = i;
-                    break;
+                    exitPosition = i; break;
                 case LOOPER:
                     if (level == 1) looperPositionLevel1 = i;
                     else looperPositionLevel2 = i;
@@ -117,6 +115,8 @@ public class Main {
     }
 
     //Checking input on validity, to prevent double input + quit conditions
+    //Maybe this ? Separation, in different methods, between user interaction operations and operations
+    //related to the problem domain. + recursion idea
     private static String readCommand(Scanner in) {
         String command = in.next();
         if (gameOver && !command.equals(QUIT)) {
@@ -131,6 +131,8 @@ public class Main {
     }
 
     // Processing game logic for movement of player && enemies
+    //Separation, in different methods, between user interaction operations and operations
+    //related to the problem domain.
     private static void handleGameLogic(String dir, Scanner scanner){
         if (gameOver){
             System.out.printf(GAME_OVER);

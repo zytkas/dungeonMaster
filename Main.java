@@ -9,8 +9,7 @@ public class Main {
     private static final char ZIGZAGGER = 'Z';
     private static final char EMPTY = '.';
     private static final int MAX_ROOMS = 100;
-
-    //private static final int MIN_ROOMS = 4; where use????? in entering arrays only ?
+    // private static final int MIN_ROOMS = 4; no sense in use, at least for now
     private static final String LEFT_MOVE = "left";
     private static final String RIGHT_MOVE = "right";
     private static final String ENEMY_LOOPER = "looper";
@@ -24,37 +23,37 @@ public class Main {
     private static final String NOT_GAME_OVER = "The game was not over yet%n";
     private static final String GAME_WIN = "You win the game!";
     private static final String GAME_LOST = "You lost the game!%n";
-    private static final String GAME_WIN_GOODBYE ="Goodbye: You won the game!";
+    private static final String GAME_WIN_GOODBYE ="Goodbye: You win the game!";
     private static final String GAME_LOOSE_GOODBYE ="Goodbye: You lost the game!";
     //Constant variables
     private static char[] layoutDungeonLevel1;
     private static char[] layoutDungeonLevel2;
     private static int playerPosition;
     private static int exitPosition;
-    private static int treasureCount = 0;
-    private static int treasureCollected = 0;
+    private static int stairsPositionLevel2;
+    private static int stairsPositionLevel1;
     private static int playerLevel;
 
     private static int looperPositionLevel1 = -1;
     private static int zigzaggerPositionLevel1 = -1;
     private static int looperPositionLevel2 = -1;
     private static int zigzaggerPositionLevel2 = -1;
-    private static int stepLevel1 = 1;
+    private static int stepLevel1 = 1; //Made for zigzagger cals
     private static int stepLevel2 = 1;
-    private static int stairsPositionLevel2;
-    private static int stairsPositionLevel1;
+    private static int treasureCount = 0;
+    private static int treasureCollected = 0;
 
     private static boolean gameOver = false;
 
-
+    //Initialising of game
     public static void main(String[] args) {
-
         Scanner in = new Scanner(System.in);
         readDungeon(in);
         playDungeon(in);
         in.close();
     }
 
+    // Read and initialise dungeon levels
     private static void readDungeon(Scanner scanner) {
         layoutDungeonLevel1 = new char[MAX_ROOMS];
         layoutDungeonLevel2 = new char[MAX_ROOMS];
@@ -69,6 +68,7 @@ public class Main {
         processDungeonLevel(layoutDungeonLevel2, 2);
     }
 
+    //Processing level elements and setting initial positions
     private static void processDungeonLevel(char[] layout, int level) {
         for (int i = 0; i < layout.length; i++) {
             switch (layout[i]) {
@@ -98,14 +98,10 @@ public class Main {
         }
     }
 
+    //Main game loop for processing user commands
     private static void playDungeon(Scanner in) {
-
         while(true){
-            String command = in.next();
-            if (gameOver && !command.equals(QUIT)){
-                System.out.printf(GAME_OVER);
-                continue;
-            }
+            String command = readCommand(in);
             switch(command){
                 case QUIT:
                     handleQuit();
@@ -120,7 +116,21 @@ public class Main {
         }
     }
 
+    //Checking input on validity, to prevent double input + quit conditions
+    private static String readCommand(Scanner in) {
+        String command = in.next();
+        if (gameOver && !command.equals(QUIT)) {
+            System.out.printf(GAME_OVER);
+            in.nextLine();
+            return readCommand(in);
+        }
+        if (!command.equals(QUIT) && !command.equals(LEFT_MOVE) && !command.equals(RIGHT_MOVE)) {
+            in.nextLine();
+        }
+        return command;
+    }
 
+    // Processing game logic for movement of player && enemies
     private static void handleGameLogic(String dir, Scanner scanner){
         if (gameOver){
             System.out.printf(GAME_OVER);
@@ -143,6 +153,7 @@ public class Main {
         }
     }
 
+    //Quit command processing
     private static void handleQuit(){
         if (!gameOver){
             System.out.printf(NOT_GAME_OVER);
@@ -152,10 +163,10 @@ public class Main {
             System.out.println(GAME_LOOSE_GOODBYE);
         }
         gameOver = true;
-
     }
-    private static void movementPlayer(String dir, int steps) {
 
+    //Main logic of player movement + checks for stairs or treasures
+    private static void movementPlayer(String dir, int steps) {
         int levelLength = playerLevel == 1 ? layoutDungeonLevel1.length : layoutDungeonLevel2.length;
         int newPos = playerPosition;
 
@@ -170,6 +181,7 @@ public class Main {
         stairsCollision(playerPosition);
     }
 
+    //Main logic of looper movement
     private static void movementLooper() {
         if (looperPositionLevel1 != -1) {
             int length = layoutDungeonLevel1.length;
@@ -179,9 +191,9 @@ public class Main {
             int length = layoutDungeonLevel2.length;
             looperPositionLevel2 = (looperPositionLevel2 + 1) % length;
         }
-
     }
 
+    //Main logic of zigzagger movement
     private static void movementZigzagger() {
         if (zigzaggerPositionLevel1 != -1) {
             int length = layoutDungeonLevel1.length;
@@ -196,6 +208,7 @@ public class Main {
         }
     }
 
+    //Printing status of game
     private static void gameStatus() {
         int outputPlayerLevel = 3 - playerLevel;
 
@@ -207,13 +220,14 @@ public class Main {
         printEnemyStatus(zigzaggerPositionLevel1, ENEMY_ZIGZAGGER, 2);
     }
 
+    //Printing enemy status
     private static void printEnemyStatus(int position, String enemyType, int level) {
         if (position >= 0) {
             System.out.printf(enemyStatus, level, enemyType, position + 1);
         }
     }
 
-
+    //Checks for collision enemy with stairs
     private static void stairsCollision(int playerPos) {
         int newPos = playerPos;
         if (newPos == stairsPositionLevel1) {
@@ -226,6 +240,7 @@ public class Main {
         playerPosition = newPos;
     }
 
+    //Checks for treasure collision enemy with stairs
     private static void treasureCollision(int playerPos) {
         char[] curLevel = playerLevel == 1 ? layoutDungeonLevel1 : layoutDungeonLevel2;
         if (curLevel[playerPos] == TREASURE) {
@@ -234,6 +249,7 @@ public class Main {
         }
     }
 
+    //Checks on enemy collision with player
     private static boolean enemyCollision() {
         return (zigzaggerPositionLevel1 == playerPosition && playerLevel == 1) ||
                 (zigzaggerPositionLevel2 == playerPosition && playerLevel == 2) ||
@@ -241,8 +257,8 @@ public class Main {
                 (looperPositionLevel2 == playerPosition && playerLevel == 2);
     }
 
+    //Checks for conditions on winning game
     private static boolean gameEnd() {
         return treasureCollected == treasureCount && playerPosition == exitPosition;
     }
-
 }

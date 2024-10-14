@@ -16,14 +16,16 @@ public class Main {
     private static final String ENEMY_LOOPER = "looper";
     private static final String QUIT = "quit";
     private static final String ENEMY_ZIGZAGGER = "zigzagger";
-    //Constant strings ...
+    //Constant strings
     private static final String playerStatus = "Player: level %d, room %d, treasures %d%n";
     private static final String enemyStatus = "Level %d enemy: %s, room %d%n";
     private static final String INVALID_COMMAND = "Invalid command%n";
     private static final String GAME_OVER = "The game is over%n";
     private static final String NOT_GAME_OVER = "The game was not over yet%n";
-    private static final String GAME_WIN ="Goodbye: You won the game!%n";
-    private static final String GAME_LOOSE ="Goodbye: You lost the game!%n";
+    private static final String GAME_WIN = "You win the game!";
+    private static final String GAME_LOST = "You lost the game!%n";
+    private static final String GAME_WIN_GOODBYE ="Goodbye: You won the game!";
+    private static final String GAME_LOOSE_GOODBYE ="Goodbye: You lost the game!";
     //Constant variables
     private static char[] layoutDungeonLevel1;
     private static char[] layoutDungeonLevel2;
@@ -42,14 +44,15 @@ public class Main {
     private static int stairsPositionLevel2;
     private static int stairsPositionLevel1;
 
+    private static boolean gameOver = false;
+
 
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-
-        readDungeon(scanner);
-        playDungeon(scanner);
-        scanner.close();
+        Scanner in = new Scanner(System.in);
+        readDungeon(in);
+        playDungeon(in);
+        in.close();
     }
 
     private static void readDungeon(Scanner scanner) {
@@ -95,54 +98,60 @@ public class Main {
         }
     }
 
-    private static void playDungeon(Scanner scanner) {
-        boolean gameOver = false;
-        while(!gameOver){
-            String command = scanner.next();
+    private static void playDungeon(Scanner in) {
+
+        while(true){
+            String command = in.next();
+            if (gameOver && !command.equals(QUIT)){
+                System.out.printf(GAME_OVER);
+                continue;
+            }
             switch(command){
                 case QUIT:
-                    handleQuit(gameOver);
-                    break;
+                    handleQuit();
+                    return;
                 case LEFT_MOVE, RIGHT_MOVE:
-                    int steps = scanner.nextInt();
-                    handleGameLogic(command, steps);
+                    handleGameLogic(command, in);
                     break;
                 default:
                     System.out.printf(INVALID_COMMAND);
                     break;
             }
-            gameOver = gameEnd();
         }
     }
 
 
-    private static void handleGameLogic(String dir, int steps){
-        if (gameEnd()){
+    private static void handleGameLogic(String dir, Scanner scanner){
+        if (gameOver){
             System.out.printf(GAME_OVER);
             return;
         }
 
+        int steps = scanner.nextInt();
         movementPlayer(dir, steps);
         movementZigzagger();
         movementLooper();
 
         if(enemyCollision()){
-            System.out.printf(GAME_LOOSE);
+            System.out.printf(GAME_LOST);
+            gameOver = true;
         }else if(gameEnd()){
             System.out.println(GAME_WIN);
+            gameOver = true;
         }else{
             gameStatus();
         }
     }
 
-    private static void handleQuit(boolean gameOver){
+    private static void handleQuit(){
         if (!gameOver){
             System.out.printf(NOT_GAME_OVER);
         }else if(gameEnd()){
-            System.out.printf(GAME_WIN);
+            System.out.printf(GAME_WIN_GOODBYE);
         }else {
-            System.out.println(GAME_LOOSE);
+            System.out.println(GAME_LOOSE_GOODBYE);
         }
+        gameOver = true;
 
     }
     private static void movementPlayer(String dir, int steps) {

@@ -7,14 +7,27 @@
     public class Main {
         public static void main(String[] args) {
             Game game = new Game();
-            game.main();
+            Scanner in = new Scanner(System.in);
+
+            // Считываем макет подземелья из консоли
+            System.out.println("Введите макет для уровня 2:");
+            game.layoutDungeonLevel2 = in.nextLine().toCharArray();
+
+            System.out.println("Введите макет для уровня 1:");
+            game.layoutDungeonLevel1 = in.nextLine().toCharArray();
+
+            // Обрабатываем макет подземелья
+            game.processDungeonLevel(game.layoutDungeonLevel2, 2);
+            game.processDungeonLevel(game.layoutDungeonLevel1, 1);
+
+            // Запускаем GUI
             SwingUtilities.invokeLater(() -> new GameGUI(game));
         }
     }
 
     class Game {
         // Constants
-        final char PLAYER = 'P';
+        static final char PLAYER = 'P';
         static final char EXIT = 'E';
         static final char TREASURE = 'T';
         static final char STAIRS = 'S';
